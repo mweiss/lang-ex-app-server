@@ -1,4 +1,3 @@
-//controllers/gorm.go
 package controllers
 
 import (
@@ -30,7 +29,15 @@ func InitDB() {
 		r.ERROR.Println("FATAL", err)
 		panic(err)
 	}
-	Gdb.AutoMigrate(&models.TestEntity{})
+
+	// Maybe I can iterate through this
+	Gdb.AutoMigrate(&models.TestEntity{},
+		&models.User{},
+		&models.UserLanguage{},
+		&models.Badge{},
+		&models.Post{},
+		&models.PostEdit{},
+		&models.PostCorrection{})
 	// uniquie index if need
 	//Gdb.Model(&models.User{}).AddUniqueIndex("idx_user_name", "name")
 }
