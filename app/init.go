@@ -24,6 +24,7 @@ func init() {
 	// ( order dependent )
 	revel.OnAppStart(controllers.InitDB)
 	revel.InterceptMethod((*controllers.GormController).Begin, revel.BEFORE)
+	revel.InterceptMethod((*controllers.GormController).InitUser, revel.BEFORE)
 	revel.InterceptMethod((*controllers.GormController).Commit, revel.AFTER)
 	revel.InterceptMethod((*controllers.GormController).Rollback, revel.FINALLY)
 	// revel.OnAppStart(FillCache)

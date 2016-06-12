@@ -5,6 +5,10 @@
 module:testrunner
 
 GET     /                                       App.Index
+GET     /api/v1/feed                            FeedController.Feed
+GET     /api/v1/post                            FeedController.GetPostByUser
+GET     /api/v1/post/:id                        FeedController.GetPostById
+GET     /api/v1/post/:id/correction             FeedController.GetCorrections
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

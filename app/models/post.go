@@ -7,7 +7,10 @@ type Post struct {
 	AuthorId  int64
 	Title     string
 	Body      string `sql:"size:4000"`
+	Language  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt time.Time
+
+	PostCorrections []PostCorrection
 }

@@ -10,4 +10,6 @@ type PostCorrection struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt time.Time
+
+	PostEdits []PostEdit
 }
