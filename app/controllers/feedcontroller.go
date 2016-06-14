@@ -23,7 +23,50 @@ type PostIdJson struct {
 	Id int64
 }
 
-func (c FeedController) CreatePostByUser(id int64) revel.Result {
+type PostCorrectIdJson struct {
+	Id      int64
+	EditIds []int64
+}
+
+func (c FeedController) CreateCorrection(postId int64) revel.Result {
+	var postCorrection models.PostCorrection
+	err := json.NewDecoder(c.Request.Body).Decode(&postCorrection)
+
+	if err != nil {
+		log.Fatal("JSON decode error: ", err)
+	} else {
+		// Verify that the post exists
+		var post models.Post = c.FetchPostById(postId)
+
+		if post.Id != 0 {
+			postCorrection.PostId = postId
+			postCorrection.AuthorId = c.GetUserId()
+			if c.Txn.NewRecord(postCorrection) {
+				c.Txn.Create(&postCorrection)
+			}
+		}
+	}
+
+	defer c.Request.Body.Close()
+
+	if postCorrection.Id != 0 {
+		editIds := make([]int64, len(postCorrection.PostEdits))
+		for i, v := range postCorrection.PostEdits {
+			editIds[i] = v.Id
+		}
+		return c.RenderJson(PostCorrectIdJson{Id: postCorrection.Id, EditIds: editIds})
+	} else {
+		c.Response.Status = 400
+		return c.RenderText("")
+	}
+}
+
+// TODO: implement this for real
+func (c FeedController) GetUserId() int64 {
+	return 1
+}
+
+func (c FeedController) CreatePost() revel.Result {
 	var post models.Post
 	err := json.NewDecoder(c.Request.Body).Decode(&post)
 
@@ -31,9 +74,11 @@ func (c FeedController) CreatePostByUser(id int64) revel.Result {
 		log.Fatal("JSON decode error: ", err)
 	} else {
 		if c.Txn.NewRecord(post) {
+			post.AuthorId = c.GetUserId()
 			c.Txn.Create(&post)
 		}
 	}
+
 	defer c.Request.Body.Close()
 	if post.Id != 0 {
 		return c.RenderJson(PostIdJson{post.Id})
