@@ -12,5 +12,5 @@ type PostEdit struct {
 	Comment          string `sql:"size:4000"`
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
-	DeletedAt        time.Time
+	DeletedAt        *time.Time
 }

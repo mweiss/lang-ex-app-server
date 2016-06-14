@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
 	"github.com/mweiss/lang-ex-app-server/app/models"
 	"github.com/revel/revel"
+	"log"
 )
 
 type FeedController struct {
@@ -15,6 +17,30 @@ type PostResponseJson struct {
 
 type PostCorrectionsJson struct {
 	PostCorrections []models.PostCorrection
+}
+
+type PostIdJson struct {
+	Id int64
+}
+
+func (c FeedController) CreatePostByUser(id int64) revel.Result {
+	var post models.Post
+	err := json.NewDecoder(c.Request.Body).Decode(&post)
+
+	if err != nil {
+		log.Fatal("JSON decode error: ", err)
+	} else {
+		if c.Txn.NewRecord(post) {
+			c.Txn.Create(&post)
+		}
+	}
+	defer c.Request.Body.Close()
+	if post.Id != 0 {
+		return c.RenderJson(PostIdJson{post.Id})
+	} else {
+		c.Response.Status = 400
+		return c.RenderText("")
+	}
 }
 
 func (c FeedController) GetCorrections(id int64) revel.Result {

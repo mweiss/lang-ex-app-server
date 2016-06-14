@@ -7,6 +7,7 @@ module:testrunner
 GET     /                                       App.Index
 GET     /api/v1/feed                            FeedController.Feed
 GET     /api/v1/post                            FeedController.GetPostByUser
+POST    /api/v1/post                            FeedController.CreatePostByUser
 GET     /api/v1/post/:id                        FeedController.GetPostById
 GET     /api/v1/post/:id/correction             FeedController.GetCorrections
 

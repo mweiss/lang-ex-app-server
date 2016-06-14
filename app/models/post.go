@@ -10,7 +10,7 @@ type Post struct {
 	Language  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt time.Time
+	DeletedAt *time.Time
 
 	PostCorrections []PostCorrection
 }
