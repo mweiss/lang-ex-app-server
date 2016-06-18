@@ -26,8 +26,9 @@ var Gdb *gorm.DB
 // init db
 func InitDB() {
 	var err error
+
 	// open db
-	Gdb, err = gorm.Open("mysql", "root@tcp(localhost:3306)/testdb")
+	Gdb, err = gorm.Open("mysql", r.Config.StringDefault("db.path", ""))
 	if err != nil {
 		r.ERROR.Println("FATAL", err)
 		panic(err)
