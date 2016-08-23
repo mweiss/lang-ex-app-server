@@ -9,5 +9,5 @@ type UserAuthentication struct {
 	LoginToken    string `sql:"unique_index"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
-	DeletedAt     time.Time
+	DeletedAt     *time.Time
 }

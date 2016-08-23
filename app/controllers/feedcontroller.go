@@ -40,7 +40,7 @@ func (c FeedController) CreateCorrection(postId int64) revel.Result {
 
 		if post.Id != 0 {
 			postCorrection.PostId = postId
-			postCorrection.AuthorId = c.GetUserId()
+			postCorrection.AuthorId = c.UserId
 			if c.Txn.NewRecord(postCorrection) {
 				c.Txn.Create(&postCorrection)
 			}
@@ -61,11 +61,6 @@ func (c FeedController) CreateCorrection(postId int64) revel.Result {
 	}
 }
 
-// TODO: implement this for real
-func (c FeedController) GetUserId() int64 {
-	return 1
-}
-
 func (c FeedController) CreatePost() revel.Result {
 	var post models.Post
 	err := json.NewDecoder(c.Request.Body).Decode(&post)
@@ -74,7 +69,7 @@ func (c FeedController) CreatePost() revel.Result {
 		log.Fatal("JSON decode error: ", err)
 	} else {
 		if c.Txn.NewRecord(post) {
-			post.AuthorId = c.GetUserId()
+			post.AuthorId = c.UserId
 			c.Txn.Create(&post)
 		}
 	}
@@ -102,7 +97,7 @@ func (c FeedController) GetCorrections(id int64) revel.Result {
 
 func (c FeedController) FetchPostById(id int64) models.Post {
 	var post models.Post
-	c.Txn.Where("id = ? AND deleted_at is null", id).First(&post)
+	c.Txn.Where("facebook_id = ? AND deleted_at is null", id).First(&post)
 
 	if post.Id != 0 {
 		var posts []models.Post = []models.Post{post}
@@ -175,13 +170,9 @@ func (c FeedController) FillPosts(posts []models.Post) {
 func (c FeedController) LanguagesToLearn() []string {
 
 	// Default the user id
-	uId := int64(-1)
-	if c.User != nil {
-		uId = c.User.Id
-	}
 	var languages []string
 
-	rows, err := c.Txn.Raw("SELECT language FROM user_languages WHERE user_id = ? and is_learning = 1", uId).Rows()
+	rows, err := c.Txn.Raw("SELECT language FROM user_languages WHERE user_id = ? and is_learning = 1", c.UserId).Rows()
 	defer rows.Close()
 
 	// TODO: probably not the right way to handle a sql error, maybe it's better do a panic statement

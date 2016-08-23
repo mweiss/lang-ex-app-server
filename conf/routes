@@ -12,7 +12,7 @@ GET     /api/v1/post/:id                        FeedController.GetPostById
 GET     /api/v1/post/:id/correction             FeedController.GetCorrections
 POST    /api/v1/post/:postId/correction         FeedController.CreateCorrection
 GET     /api/v1/profile                         ProfileController.GetProfile
-POST    /api/v1/login                           LoginController.Login
+GET     /api/v1/login                           LoginController.Login
 
 # Ignore favicon requests
 GET     /favicon.ico                            404

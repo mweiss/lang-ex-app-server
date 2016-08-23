@@ -10,5 +10,5 @@ type UserLanguage struct {
 	IsLearning bool
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
-	DeletedAt  time.Time
+	DeletedAt  *time.Time
 }

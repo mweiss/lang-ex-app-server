@@ -4,7 +4,7 @@ import "time" // if you need/want
 
 type PostEdit struct {
 	Id               int64
-	PostCorrectionId int64
+	PostCorrectionId int64 `sql:"index"`
 	Section          string
 	StartIndex       int64
 	Length           int64

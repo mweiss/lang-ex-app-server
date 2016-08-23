@@ -14,8 +14,8 @@ import (
 // c.Txn will keep `Gdb *gorm.DB`
 type GormController struct {
 	*r.Controller
-	Txn  *gorm.DB
-	User *models.User
+	Txn    *gorm.DB
+	UserId int64
 }
 
 const authenticationHeader = "AuthenticationToken"
@@ -50,19 +50,10 @@ func InitDB() {
 // Initialize the user based on the authentication token.  If the authentication header
 // is invalid, then the user is not initialized.
 func (c *GormController) InitUser() r.Result {
-
-	authenticationToken := c.Request.Header.Get(authenticationHeader)
-
-	if authenticationToken != "" {
-		var userAuthentication *models.UserAuthentication
-		c.Txn.Where("login_token = ? and deletion_date is null", authenticationToken).First(&userAuthentication)
-		if userAuthentication != nil {
-			var user *models.User
-			c.Txn.Where("id = ?", userAuthentication.UserId).First(&user)
-			c.User = user
-		}
-	}
-
+	var userAuthentication models.UserAuthentication
+	str := c.Request.Header.Get(authenticationHeader)
+	c.Txn.Where("login_token = ? and deleted_at is null", str).First(&userAuthentication)
+	c.UserId = userAuthentication.UserId
 	return nil
 }
 

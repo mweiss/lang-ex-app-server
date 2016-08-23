@@ -9,5 +9,5 @@ type TestEntity struct {
 	Password          string `sql:"-"`
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
-	DeletedAt         time.Time
+	DeletedAt         *time.Time
 }
