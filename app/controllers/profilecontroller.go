@@ -12,11 +12,6 @@ type ProfileController struct {
 	App
 }
 
-type ProfileJson struct {
-	User             *models.User
-	SelfIntroduction *models.Post
-}
-
 type UpdateLanguageJson struct {
 	Language   string `json:"language"`
 	Level      string `json:"level"`
@@ -37,21 +32,17 @@ func (c ProfileController) GetUser() models.User {
 
 func (c ProfileController) GetProfile() revel.Result {
 
-	var profileJson ProfileJson
 	var user models.User = c.GetUser()
 
 	// From the user id, fetch the self introduction post
 	if user.Id != 0 {
-		profileJson.User = &user
-
-		var selfIntroduction models.Post
-		c.Txn.Where("id = ? AND deleted_at is null ", user.SelfIntroductionPostId).First(&selfIntroduction)
-		if selfIntroduction.Id != 0 {
-			profileJson.SelfIntroduction = &selfIntroduction
-		}
+		c.Txn.Model(&user).Related(&user.UserLanguages)
+		log.Print(user.UserLanguages)
+		return c.RenderJson(user)
+	} else {
+		c.Response.Status = http.StatusUnauthorized
+		return c.Render()
 	}
-
-	return c.RenderJson(profileJson)
 }
 
 func (c ProfileController) UpdateLanguages(languages []UpdateLanguageJson) {
@@ -90,7 +81,7 @@ func LanguageIsSupported(language string) bool {
 		"en",
 		"de",
 		"zh",
-		"jp":
+		"ja":
 		return true
 	}
 	return false
@@ -142,6 +133,8 @@ func (c ProfileController) UpdateProfile() revel.Result {
 		if err != nil {
 			log.Fatal("JSON decode error: ", err)
 		} else {
+
+			log.Print(updateProfileJson.Languages)
 			// Validate the input parameters
 			c.ValidateLanguages(updateProfileJson.Languages)
 			c.ValidateDisplayName(updateProfileJson.DisplayName)
@@ -151,13 +144,14 @@ func (c ProfileController) UpdateProfile() revel.Result {
 				if updateProfileJson.Languages != nil {
 					c.UpdateLanguages(*updateProfileJson.Languages)
 				}
-				if updateProfileJson.DisplayName != nil {
+				if updateProfileJson.DisplayName != nil || updateProfileJson.AllowNonNativeSpeakersToUpdate != nil {
 					c.UpdateUser(updateProfileJson)
 				}
 			}
 		}
 
 		if c.Validation.HasErrors() {
+			log.Print(c.Validation.Errors)
 			c.Response.Status = http.StatusBadRequest
 		} else {
 			c.Response.Status = http.StatusOK

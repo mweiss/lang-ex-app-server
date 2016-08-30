@@ -24,12 +24,16 @@ type LoginResponseJson struct {
 }
 
 type FacebookJson struct {
-	Id        string      `json:"id"`
-	Name      string      `json:"name"`
-	FirstName string      `json:"first_name"`
-	LastName  string      `json:"last_name"`
-	Picture   PictureJson `json:"picture"`
-	Email     string      `json"email"`
+	Id        string          `json:"id"`
+	Name      string          `json:"name"`
+	FirstName string          `json:"first_name"`
+	LastName  string          `json:"last_name"`
+	Picture   PictureDataJson `json:"picture"`
+	Email     string          `json"email"`
+}
+
+type PictureDataJson struct {
+	Data PictureJson `json:"data"`
 }
 
 type PictureJson struct {
@@ -90,7 +94,7 @@ func (c LoginController) FetchOrCreateUser(fbData FacebookJson) models.User {
 		user.FirstName = &fbData.FirstName
 		user.LastName = &fbData.LastName
 		user.Email = fbData.Email
-		user.ImageURL = fbData.Picture.Url
+		user.ImageURL = fbData.Picture.Data.Url
 		if c.Txn.NewRecord(user) {
 			c.Txn.Create(&user)
 		}
