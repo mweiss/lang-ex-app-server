@@ -1,15 +1,10 @@
 package models
 
-import "time" // if you need/want
-
 type PostCorrection struct {
-	Id        int64
-	PostId    int64 `sql:"index"`
-	AuthorId  int64
-	Comment   string `sql:"size:4000"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time
+	Model
+	PostId   uint   `sql:"index" json:"postId"`
+	AuthorId uint   `json:"authorId"`
+	Comment  string `sql:"size:4000" json:"comment"`
 
-	PostEdits []PostEdit
+	PostEdits []PostEdit `json:"postEdits"`
 }

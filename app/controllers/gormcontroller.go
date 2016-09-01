@@ -15,7 +15,7 @@ import (
 type GormController struct {
 	*r.Controller
 	Txn    *gorm.DB
-	UserId int64
+	UserId uint
 }
 
 const authenticationHeader = "AuthenticationToken"

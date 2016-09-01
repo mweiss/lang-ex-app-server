@@ -1,12 +1,7 @@
 package models
 
-import "time" // if you need/want
-
 type Badge struct {
-	Id        int64
-	UserId    int64
+	Model
+	UserId    uint
 	BadgeName string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt time.Time // for soft delete
 }

@@ -3,7 +3,7 @@ package models
 import "time"
 
 type TestEntity struct {
-	Id                int64
+	Id                uint
 	Name              string
 	EncryptedPassword []byte
 	Password          string `sql:"-"`

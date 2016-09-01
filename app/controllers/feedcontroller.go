@@ -20,15 +20,15 @@ type PostCorrectionsJson struct {
 }
 
 type PostIdJson struct {
-	Id int64
+	Id uint
 }
 
 type PostCorrectIdJson struct {
-	Id      int64
-	EditIds []int64
+	Id      uint
+	EditIds []uint
 }
 
-func (c FeedController) CreateCorrection(postId int64) revel.Result {
+func (c FeedController) CreateCorrection(postId uint) revel.Result {
 	var postCorrection models.PostCorrection
 	err := json.NewDecoder(c.Request.Body).Decode(&postCorrection)
 
@@ -50,7 +50,7 @@ func (c FeedController) CreateCorrection(postId int64) revel.Result {
 	defer c.Request.Body.Close()
 
 	if postCorrection.Id != 0 {
-		editIds := make([]int64, len(postCorrection.PostEdits))
+		editIds := make([]uint, len(postCorrection.PostEdits))
 		for i, v := range postCorrection.PostEdits {
 			editIds[i] = v.Id
 		}
@@ -83,7 +83,7 @@ func (c FeedController) CreatePost() revel.Result {
 	}
 }
 
-func (c FeedController) GetCorrections(id int64) revel.Result {
+func (c FeedController) GetCorrections(id uint) revel.Result {
 	var post models.Post = c.FetchPostById(id)
 
 	// TODO: I should consolidate how I do this into one helper method.
@@ -95,7 +95,7 @@ func (c FeedController) GetCorrections(id int64) revel.Result {
 	}
 }
 
-func (c FeedController) FetchPostById(id int64) models.Post {
+func (c FeedController) FetchPostById(id uint) models.Post {
 	var post models.Post
 	c.Txn.Where("facebook_id = ? AND deleted_at is null", id).First(&post)
 
@@ -106,7 +106,7 @@ func (c FeedController) FetchPostById(id int64) models.Post {
 	return post
 }
 
-func (c FeedController) GetPostById(id int64) revel.Result {
+func (c FeedController) GetPostById(id uint) revel.Result {
 
 	var post models.Post = c.FetchPostById(id)
 
@@ -122,8 +122,8 @@ func (c FeedController) GetPostById(id int64) revel.Result {
 func (c FeedController) GetPostByUser() revel.Result {
 
 	// Fetch the request parameters.
-	var user int64
-	var correctedByUser int64
+	var user uint
+	var correctedByUser uint
 
 	c.Params.Bind(&user, "user")
 	c.Params.Bind(&correctedByUser, "correctedByUser")
@@ -160,6 +160,7 @@ func (c FeedController) Feed() revel.Result {
 func (c FeedController) FillPosts(posts []models.Post) {
 	for i := range posts {
 		c.Txn.Model(posts[i]).Related(&posts[i].PostCorrections)
+		c.Txn.Model(posts[i]).Related(&posts[i].User)
 		for j := range posts[i].PostCorrections {
 			c.Txn.Model(posts[i]).Related(&posts[i].PostCorrections[j].PostEdits)
 		}
@@ -172,7 +173,7 @@ func (c FeedController) LanguagesToLearn() []string {
 	// Default the user id
 	var languages []string
 
-	rows, err := c.Txn.Raw("SELECT language FROM user_languages WHERE user_id = ? and is_learning = 1", c.UserId).Rows()
+	rows, err := c.Txn.Raw("SELECT language FROM user_languages WHERE user_id = ? and is_learning = 1 and deleted_at is null", c.UserId).Rows()
 	defer rows.Close()
 
 	// TODO: probably not the right way to handle a sql error, maybe it's better do a panic statement

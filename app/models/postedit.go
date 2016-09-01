@@ -1,16 +1,11 @@
 package models
 
-import "time" // if you need/want
-
 type PostEdit struct {
-	Id               int64
-	PostCorrectionId int64 `sql:"index"`
-	Section          string
-	StartIndex       int64
-	Length           int64
-	NewText          string
-	Comment          string `sql:"size:4000"`
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
-	DeletedAt        *time.Time
+	Model
+	PostCorrectionId uint   `sql:"index" json:"postCorrectionId"`
+	Section          string `json:"section"`
+	StartIndex       uint   `json:"startIndex"`
+	Length           uint   `json:"length"`
+	NewText          string `json:"newText"`
+	Comment          string `sql:"size:4000" json:"comment"`
 }
