@@ -130,8 +130,12 @@ func (c FeedController) GetPostByUser() revel.Result {
 
 	var posts []models.Post = []models.Post{}
 
+	log.Print("hey")
+	log.Print(user)
 	if user != 0 {
 		c.Txn.Where("author_id = ? AND deleted_at is null", user).Find(&posts)
+		log.Print("fetched some posts")
+		log.Print(posts)
 	} else if correctedByUser != 0 {
 		c.Txn.Where("deleted_at is null AND 1 <= (SELECT count(*) FROM post_corrections pc "+
 			"WHERE pc.author_id = ? and pc.id = posts.id)", correctedByUser).Find(&posts)
@@ -160,7 +164,7 @@ func (c FeedController) Feed() revel.Result {
 func (c FeedController) FillPosts(posts []models.Post) {
 	for i := range posts {
 		c.Txn.Model(posts[i]).Related(&posts[i].PostCorrections)
-		c.Txn.Model(posts[i]).Related(&posts[i].User)
+		c.Txn.Where("id = ?", posts[i].AuthorId).First(&posts[i].User)
 		for j := range posts[i].PostCorrections {
 			c.Txn.Model(posts[i]).Related(&posts[i].PostCorrections[j].PostEdits)
 		}

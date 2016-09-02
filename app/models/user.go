@@ -12,7 +12,7 @@ type User struct {
 	ImageURL                  string  `json:"imageURL"`
 	EncryptedPassword         []byte  `json:"-"`
 	Password                  string  `json:"-" sql:"-"`
-	KarmaScore                uint    `json:"id"`
+	KarmaScore                uint    `json:"karmaScore"`
 
 	UserLanguages []UserLanguage `json:"userLanguages"`
 }

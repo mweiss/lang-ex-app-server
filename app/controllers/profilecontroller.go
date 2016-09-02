@@ -37,7 +37,7 @@ func (c ProfileController) GetProfile() revel.Result {
 	// From the user id, fetch the self introduction post
 	if user.Id != 0 {
 		c.Txn.Model(&user).Related(&user.UserLanguages)
-		log.Print(user.UserLanguages)
+		log.Print(user.Id)
 		return c.RenderJson(user)
 	} else {
 		c.Response.Status = http.StatusUnauthorized
