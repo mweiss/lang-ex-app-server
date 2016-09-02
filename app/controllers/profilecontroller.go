@@ -123,6 +123,8 @@ func (c ProfileController) ValidateDisplayName(displayName *string) {
 func (c ProfileController) UpdateProfile() revel.Result {
 	var updateProfileJson UpdateProfileJson
 
+	log.Print(c.UserId)
+
 	// Check to make sure we have a valid user
 	if c.UserId == 0 {
 		c.Response.Status = http.StatusUnauthorized
@@ -151,6 +153,7 @@ func (c ProfileController) UpdateProfile() revel.Result {
 		}
 
 		if c.Validation.HasErrors() {
+			log.Print("")
 			log.Print(c.Validation.Errors)
 			c.Response.Status = http.StatusBadRequest
 		} else {

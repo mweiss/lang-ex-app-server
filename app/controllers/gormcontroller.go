@@ -8,6 +8,7 @@ import (
 	// YOUR APP NAME
 	"database/sql"
 	"github.com/mweiss/lang-ex-app-server/app/models"
+	"log"
 )
 
 // type: revel controller with `*gorm.DB`
@@ -28,7 +29,7 @@ func InitDB() {
 	var err error
 
 	// open db
-	Gdb, err = gorm.Open("mysql", r.Config.StringDefault("db.path", ""))
+	Gdb, err = gorm.Open("mysql", r.Config.StringDefault("db.path", "")+"?parseTime=true")
 	if err != nil {
 		r.ERROR.Println("FATAL", err)
 		panic(err)
@@ -52,7 +53,9 @@ func InitDB() {
 func (c *GormController) InitUser() r.Result {
 	var userAuthentication models.UserAuthentication
 	str := c.Request.Header.Get(authenticationHeader)
-	c.Txn.Where("login_token = ? and deleted_at is null", str).First(&userAuthentication)
+	log.Print(str)
+	c.Txn.Select("user_id").Where("login_token = ? and deleted_at is null", str).First(&userAuthentication)
+	log.Print(userAuthentication)
 	c.UserId = userAuthentication.UserId
 	return nil
 }
