@@ -12,20 +12,20 @@ type FeedController struct {
 }
 
 type PostResponseJson struct {
-	Posts []models.Post
+	Posts []models.Post `json:posts`
 }
 
 type PostCorrectionsJson struct {
-	PostCorrections []models.PostCorrection
+	PostCorrections []models.PostCorrection `json:postCorrections`
 }
 
 type PostIdJson struct {
-	Id uint
+	Id uint `json:id`
 }
 
 type PostCorrectIdJson struct {
-	Id      uint
-	EditIds []uint
+	Id      uint   `json:id`
+	EditIds []uint `json:editIds`
 }
 
 func (c FeedController) CreateCorrection(postId uint) revel.Result {
@@ -33,7 +33,7 @@ func (c FeedController) CreateCorrection(postId uint) revel.Result {
 	err := json.NewDecoder(c.Request.Body).Decode(&postCorrection)
 
 	if err != nil {
-		log.Fatal("JSON decode error: ", err)
+		log.Print("JSON decode error: ", err)
 	} else {
 		// Verify that the post exists
 		var post models.Post = c.FetchPostById(postId)
@@ -49,11 +49,14 @@ func (c FeedController) CreateCorrection(postId uint) revel.Result {
 
 	defer c.Request.Body.Close()
 
+	log.Print(postCorrection)
+
 	if postCorrection.Id != 0 {
 		editIds := make([]uint, len(postCorrection.PostEdits))
 		for i, v := range postCorrection.PostEdits {
 			editIds[i] = v.Id
 		}
+		log.Print(editIds)
 		return c.RenderJson(PostCorrectIdJson{Id: postCorrection.Id, EditIds: editIds})
 	} else {
 		c.Response.Status = 400
@@ -66,7 +69,7 @@ func (c FeedController) CreatePost() revel.Result {
 	err := json.NewDecoder(c.Request.Body).Decode(&post)
 
 	if err != nil {
-		log.Fatal("JSON decode error: ", err)
+		log.Print("JSON decode error: ", err)
 	} else {
 		if c.Txn.NewRecord(post) {
 			post.AuthorId = c.UserId
@@ -97,7 +100,7 @@ func (c FeedController) GetCorrections(id uint) revel.Result {
 
 func (c FeedController) FetchPostById(id uint) models.Post {
 	var post models.Post
-	c.Txn.Where("facebook_id = ? AND deleted_at is null", id).First(&post)
+	c.Txn.Where("id = ? AND deleted_at is null", id).First(&post)
 
 	if post.Id != 0 {
 		var posts []models.Post = []models.Post{post}
@@ -166,7 +169,7 @@ func (c FeedController) FillPosts(posts []models.Post) {
 		c.Txn.Model(posts[i]).Related(&posts[i].PostCorrections)
 		c.Txn.Where("id = ?", posts[i].AuthorId).First(&posts[i].User)
 		for j := range posts[i].PostCorrections {
-			c.Txn.Model(posts[i]).Related(&posts[i].PostCorrections[j].PostEdits)
+			c.Txn.Model(posts[i].PostCorrections[j]).Related(&posts[i].PostCorrections[j].PostEdits)
 		}
 	}
 }

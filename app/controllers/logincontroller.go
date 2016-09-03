@@ -119,7 +119,7 @@ func (c LoginController) CreateAuthenticationRow(user models.User, fbToken strin
 func createLoginToken() string {
 	hostname, err := os.Hostname()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	s := fmt.Sprintf("%v_%v_%v_%v_%v_apjd7xc", hostname, os.Getpid(), time.Now(), rand.Int63(), rand.Int63())
@@ -130,7 +130,7 @@ func createLoginToken() string {
 func (c LoginController) Login() revel.Result {
 	fbData, err := c.FetchFacebookData()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		// Return no access error depending on the error we get back
 	}
 

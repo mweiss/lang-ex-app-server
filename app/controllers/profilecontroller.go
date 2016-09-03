@@ -133,7 +133,7 @@ func (c ProfileController) UpdateProfile() revel.Result {
 		err := json.NewDecoder(c.Request.Body).Decode(&updateProfileJson)
 
 		if err != nil {
-			log.Fatal("JSON decode error: ", err)
+			log.Print("JSON decode error: ", err)
 		} else {
 
 			log.Print(updateProfileJson.Languages)
